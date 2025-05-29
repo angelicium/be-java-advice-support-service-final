@@ -1,0 +1,4 @@
+ticket_category:
+  - id: 3
+    name: "Прочее"
+    description: "Общие или неклассифицированные вопросы"
