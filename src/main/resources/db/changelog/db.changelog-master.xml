@@ -5,4 +5,5 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <include file="/db/changelog/changeset/2025/05/28/create-table-ticket-status.sql"/>
     <include file="db/changelog/changeset/2025/05/28/create-table-ticket-category.sql"/>
+    <include file="/db/changelog/changeset/2025/05/28/create-table-user.sql"/>
 </databaseChangeLog>
