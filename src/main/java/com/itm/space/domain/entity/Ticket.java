@@ -18,16 +18,16 @@ public class Ticket {
     @Id
     private UUID id;
 
-   @OneToOne
-   @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private TicketCategory category;
 
-   // @ManyToOne пока что связи нет
-   // @JoinColumn(name = "priority_id", nullable = false)
+    // @ManyToOne пока что связи нет
+    // @JoinColumn(name = "priority_id", nullable = false)
     @Column(name = "priority_id", nullable = false)
     private Integer priority;
 
