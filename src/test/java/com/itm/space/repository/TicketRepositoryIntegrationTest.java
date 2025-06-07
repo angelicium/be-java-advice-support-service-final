@@ -1,85 +1,97 @@
 package com.itm.space.repository;
 
+import com.itm.space.BaseIntegrationTest;
 import com.itm.space.domain.entity.Ticket;
 import com.itm.space.domain.entity.TicketCategory;
 import com.itm.space.domain.entity.User;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.sql.Timestamp;
 import java.util.UUID;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Testcontainers
-@ActiveProfiles("test")
-public class TicketRepositoryIntegrationTest {
+public class TicketRepositoryIntegrationTest extends BaseIntegrationTest {
 
-    @Container
-    static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:14-alpine");
-
-    @DynamicPropertySource
-    static void configure (DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", container::getJdbcUrl);
-        registry.add("spring.datasource.username", container::getUsername);
-        registry.add("spring.datasource.password", container::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
-        registry.add("spring.liquibase.enabled", () -> true);
-    }
     @Autowired
     private TicketRepository ticketRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private TicketCategoryRepository ticketCategoryRepository;
 
-    @Test
-    public void shouldSaveAndRetrieveTicket() {
-        Ticket ticket = ticketInitializer();
+    private User testUser;
+    private TicketCategory testCategory;
 
-        ticketRepository.save(ticket);
-        Ticket retrievedTicket = ticketRepository.findById(ticket.getId()).orElseThrow();
+    @BeforeEach
+    public void setUp() {
+        testCategory = TicketCategory.builder()
+                .id(1)
+                .name("testCategory")
+                .description("testCategoryDescription")
+                .build();
+        ticketCategoryRepository.save(testCategory);
 
-      assertNotNull(retrievedTicket);
-      assertEquals(ticket.getId(), retrievedTicket.getId());
-      assertEquals(ticket.getDescription(), retrievedTicket.getDescription());
-      assertEquals(ticket.getCreatedAt(), retrievedTicket.getCreatedAt());
+        testUser = User.builder()
+                .name("testUser")
+                .email("testUser@test.com")
+                .build();
+        userRepository.save(testUser);
     }
 
     @Test
-    public void shouldUpdateAndRetrieveTicket() {
-        Ticket ticket = ticketInitializer();
+    @DisplayName("Тест на добавление сущности Ticket в БД")
+    public void shouldSaveAndRetrieveTicket() {
+        Ticket ticket = ticketInit();
 
-        Boolean isExisted = ticketRepository.existsById(ticket.getId());
-        if (!isExisted) {
-            throw new RuntimeException("объект не найден");
-        }
+
         ticketRepository.save(ticket);
+
+
+        Ticket retrievedTicket = ticketRepository.findById(ticket.getId()).orElseThrow();
+        assertNotNull(retrievedTicket);
+        assertEquals(ticket.getId(), retrievedTicket.getId());
+        assertEquals(ticket.getTitle(), retrievedTicket.getTitle());
+        assertEquals(ticket.getDescription(), retrievedTicket.getDescription());
+    }
+
+    @Test
+    @DisplayName("Тест на обновление сущности Ticket в БД")
+    public void shouldUpdateAndRetrieveTicket() {
+
+        Ticket ticket = ticketInit();
+
+        ticketRepository.save(ticket);
+
+
+        ticket.setTitle("Updated Ticket Title");
+        ticket.setDescription("Updated Ticket Description");
+        ticketRepository.save(ticket);
+
 
         Ticket updatedTicket = ticketRepository.findById(ticket.getId()).orElseThrow();
-
-        assertEquals(ticket, updatedTicket);
+        assertEquals("Updated Ticket Title", updatedTicket.getTitle());
+        assertEquals("Updated Ticket Description", updatedTicket.getDescription());
     }
 
-    private Ticket ticketInitializer() {
-        Ticket ticket = new Ticket();
-        ticket.setId(UUID.randomUUID());
-        ticket.setTitle("Ticket Title");
-        ticket.setDescription("Ticket Description");
-        ticket.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        ticket.setCategory(new TicketCategory());
-        ticket.setClosedAt(new Timestamp(System.currentTimeMillis()));
-        ticket.setPriority(1);
-        ticket.setStatus(1);
-        ticket.setEscalatedAt(new Timestamp(System.currentTimeMillis()));
-        ticket.setSlaDeadline(new Timestamp(System.currentTimeMillis()));
-        ticket.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        ticket.setUser(new User());
-        return ticket;
+    private Ticket ticketInit(){
+        return Ticket.builder()
+                .id(UUID.randomUUID())
+                .user(userRepository.findAll().getFirst())
+                .category(testCategory)
+                .priority(1)
+                .status(1)
+                .title("Ticket Title")
+                .description("Ticket Description")
+                .slaDeadline(new Timestamp(System.currentTimeMillis()))
+                .escalatedAt(new Timestamp(System.currentTimeMillis()))
+                .createdAt(new Timestamp(System.currentTimeMillis()))
+                .updatedAt(new Timestamp(System.currentTimeMillis()))
+                .closedAt(null)
+                .build();
     }
 }

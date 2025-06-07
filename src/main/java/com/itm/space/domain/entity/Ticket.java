@@ -9,9 +9,10 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@Table(name = "ticket")
 public class Ticket {
 
     @Id
@@ -21,7 +22,7 @@ public class Ticket {
    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-   @ManyToOne
+    @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private TicketCategory category;
 

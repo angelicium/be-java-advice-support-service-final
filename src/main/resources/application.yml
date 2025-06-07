@@ -5,7 +5,7 @@ server:
 logging:
   config: classpath:${LOGGING_CONFIG_FILE:log4j2-local.xml}
 
-db-schema: support_service
+db-schema: public
 
 project:
   version: @project.version@
