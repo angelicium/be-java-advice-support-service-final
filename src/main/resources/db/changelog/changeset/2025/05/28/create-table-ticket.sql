@@ -1,3 +1,5 @@
+--liquibase formatted sql
+--changeset Angelica 2025-05-28:create-table-ticket
 CREATE TABLE ticket(
                        id UUID PRIMARY KEY NOT NULL,
                        user_id UUID NOT NULL,
@@ -8,5 +10,7 @@ CREATE TABLE ticket(
                        description TEXT NOT NULL,
                        sla_deadline TIMESTAMP,
                        escalated_at TIMESTAMP,
-                       created_at TIME
+                       created_at TIMESTAMP,
+                       updated_at timestamp,
+                       closed_at timestamp
 );
