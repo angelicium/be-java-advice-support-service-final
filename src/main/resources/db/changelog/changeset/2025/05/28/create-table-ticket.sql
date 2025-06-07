@@ -9,4 +9,7 @@ CREATE TABLE ticket(
                        sla_deadline TIMESTAMP,
                        escalated_at TIMESTAMP,
                        created_at TIME
+                       created_at TIMESTAMP,
+                       updated_at timestamp,
+                       closed_at timestamp
 );
